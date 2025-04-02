@@ -9,24 +9,24 @@ export default function Legal() {
   const [activeTab, setActiveTab] = useState<'privacy' | 'terms'>('privacy');
   
   return (
-    <div className="min-h-screen bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)]">
+    <div className="min-h-screen bg-[var(--color-jet)]">
       <Header />
       
       <section className="py-20 container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-10 text-center font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+          <h1 className="text-4xl font-bold mb-10 text-center font-heading text-[var(--color-floral-white)]">
             Legal Information
           </h1>
           
           {/* Tabs */}
           <div className="flex justify-center mb-10">
-            <div className="bg-white dark:bg-[#363636] rounded-full p-1 flex">
+            <div className="bg-[#363636] rounded-full p-1 flex">
               <button
                 onClick={() => setActiveTab('privacy')}
                 className={`px-6 py-2 rounded-full transition-all duration-300 ${
                   activeTab === 'privacy'
                     ? 'bg-[var(--color-cinnabar)] text-white font-medium'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70'
+                    : 'hover:bg-gray-700 text-[var(--color-floral-white)]/70'
                 }`}
               >
                 Privacy Policy
@@ -36,7 +36,7 @@ export default function Legal() {
                 className={`px-6 py-2 rounded-full transition-all duration-300 ${
                   activeTab === 'terms'
                     ? 'bg-[var(--color-verdigris)] text-white font-medium'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70'
+                    : 'hover:bg-gray-700 text-[var(--color-floral-white)]/70'
                 }`}
               >
                 Terms of Service
@@ -45,9 +45,9 @@ export default function Legal() {
           </div>
           
           {/* Content */}
-          <div className="bg-white dark:bg-[#363636] p-8 rounded-lg shadow-md">
+          <div className="bg-[#363636] p-8 rounded-lg shadow-md">
             {activeTab === 'privacy' ? (
-              <div className="prose prose-lg dark:prose-invert max-w-none">
+              <div className="prose prose-lg prose-invert max-w-none">
                 <h2 className="text-2xl font-bold mb-6 font-heading">Privacy Policy</h2>
                 <p className="mb-4">
                   <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
@@ -120,7 +120,7 @@ export default function Legal() {
                 </p>
               </div>
             ) : (
-              <div className="prose prose-lg dark:prose-invert max-w-none">
+              <div className="prose prose-lg prose-invert max-w-none">
                 <h2 className="text-2xl font-bold mb-6 font-heading">Terms of Service</h2>
                 <p className="mb-4">
                   <strong>Last Updated:</strong> {new Date().toLocaleDateString()}

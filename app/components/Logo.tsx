@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
@@ -17,7 +16,7 @@ export default function Logo({ size = 'medium', withText = true, className = '' 
   const logoSize = sizeMap[size];
 
   return (
-    <Link href="/" className={`flex items-center gap-3 transition-transform hover:scale-105 duration-300 ${className}`}>
+    <div className={`flex items-center gap-3 transition-transform hover:scale-105 duration-300 ${className}`}>
       <div className="relative flex-shrink-0" style={{ width: logoSize, height: logoSize }}>
         <svg 
           viewBox="0 0 200 200" 
@@ -36,10 +35,10 @@ export default function Logo({ size = 'medium', withText = true, className = '' 
         </svg>
       </div>
       {withText && (
-        <span className="font-semibold text-xl tracking-tight text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+        <span className="font-semibold text-xl tracking-tight text-[var(--color-foreground)]">
           The Depth Factor
         </span>
       )}
-    </Link>
+    </div>
   );
 } 

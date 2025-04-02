@@ -1,337 +1,310 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { searchContent } from '@/app/services/api';
-import BlogPost from '@/app/components/BlogPost';
-import VideoCard from '@/app/components/VideoCard';
-import LoadingSpinner from '@/app/components/LoadingSpinner';
-import Button from '@/app/components/Button';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
+import Button from '@/app/components/Button';
+import LoadingSpinner from '@/app/components/LoadingSpinner';
+
+// Define the message types for the chat
+type MessageRole = 'user' | 'assistant';
+
+interface Message {
+  id: string;
+  role: MessageRole;
+  content: string;
+  timestamp: Date;
+}
 
 export default function Home() {
-  const [query, setQuery] = useState('');
-  const [email, setEmail] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formSuccess, setFormSuccess] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [results, setResults] = useState<{
-    blogPosts: any[];
-    videos: any[];
-  } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!query.trim()) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const data = await searchContent(query);
-      setResults(data);
-    } catch (err) {
-      setError('Failed to fetch content. Please try again.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+  // Scroll to bottom of messages whenever messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Auto-resize the textarea based on content
+  const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  // Handle Enter key to submit (without Shift key)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
     }
   };
 
-  const handleSubscribe = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email.trim()) return;
+    if (!input.trim() || isLoading) return;
     
-    setIsSubmitting(true);
-    setFormError(null);
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
     
     try {
-      const response = await fetch('https://submit-form.com/dlcpEy9sh', {
+      // Call our Together.ai API
+      const response = await fetch('/api/together', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
         },
-        body: JSON.stringify({ 
-          email,
-          message: "Newsletter signup"
+        body: JSON.stringify({
+          messages: [...messages.map(msg => ({ role: msg.role, content: msg.content })), 
+                    { role: userMessage.role, content: userMessage.content }],
         }),
       });
       
-      if (response.ok) {
-        setFormSuccess(true);
-        setEmail('');
-      } else {
-        const errorText = await response.text();
-        console.error('Formspark submission error:', response.status, errorText);
-        setFormError('An error occurred. Please try again.');
+      if (!response.ok) {
+        throw new Error('Failed to fetch response');
       }
-    } catch (err) {
-      setFormError('An error occurred. Please try again.');
-      console.error(err);
+      
+      // For streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let responseText = '';
+      
+      // Add an empty assistant message
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          responseText += chunk;
+          
+          // Update the last message
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              content: responseText
+            };
+            return updated;
+          });
+        }
+      }
+      
+      if (!responseText) {
+        // Update with an error if no response received
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: 'Sorry, I did not receive a response. Please try again.'
+          };
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'I apologize, but I encountered an error processing your request. Please try again.',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
+      
+      // Reset textarea height
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto';
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)]">
+    <div className="flex flex-col bg-[var(--background)]">
       <Header />
-
-      {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50 z-10"></div>
-        <Image
-            src="/images/hero-homepage.jpg" 
-            alt="The Depth Factor Hero Image"
-            fill
-          priority
-            className="object-cover"
-          />
-        </div>
-        {/* Pulse Beats effect */}
-        <div className="container mx-auto px-4 relative z-20">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className={mounted ? "text-5xl md:text-6xl font-bold mb-12 animate-slide-up delay-400 tracking-tight leading-tight text-white font-heading" : "text-5xl md:text-6xl font-bold mb-12 opacity-0 tracking-tight leading-tight text-white font-heading"}>
-              Inner world<span className="mx-4">➔</span>Outer world
-            </h1>
-            <p className={mounted ? "text-xl md:text-2xl max-w-2xl mx-auto mb-16 animate-slide-up delay-600 text-white/90" : "text-xl md:text-2xl max-w-2xl mx-auto mb-20 opacity-0 text-white/90"}>
-            Dive Deeper into Your Life 
-            </p>
-            
-            <div className={mounted ? "flex flex-col sm:flex-row gap-5 justify-center mt-12 mb-16 animate-slide-up delay-800" : "flex flex-col sm:flex-row gap-5 justify-center mb-16 opacity-0"}>
-              <Link href="https://www.youtube.com/@thedepthfactor" target="_blank">
-                <Button variant="primary" size="large">
-                  Explore on Youtube
-                </Button>
-              </Link>
-              <Link href="#search-section">
-                <Button variant="secondary" size="large">
-                  Find Content For You
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Search Section */}
-      <section id="search-section" className="bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] text-white py-24 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="10" cy="10" r="1.5" fill="#ffffff" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 font-heading">
-            What are you struggling with?
-          </h2>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Find Content Custom Tailored to You.
-          </p>
-          
-          {/* Search Input */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="anxiety, motivation, relationships..."
-                className="w-full px-6 py-4 rounded-full text-[var(--color-jet)] text-lg bg-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
-              />
-              <div className="absolute right-2 top-2">
-                <Button type="submit" variant="secondary">
-                  Search
-                </Button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      {/* Results Section */}
-      <section className="py-20 container mx-auto px-4">
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : error ? (
-          <div className="text-center text-[var(--color-cinnabar)] max-w-lg mx-auto p-4 bg-red-50 dark:bg-red-900/20 bg-opacity-50 rounded-lg">
-            {error}
-          </div>
-        ) : results ? (
-          <div className="animate-fade-in">
-            <h2 className="text-3xl font-bold mb-12 text-center font-heading">Personalized Results</h2>
-            
-            {/* Blog Posts */}
-            {results.blogPosts && results.blogPosts.length > 0 && (
-              <div className="mb-16">
-                <h3 className="text-2xl font-semibold mb-8 border-l-4 border-[var(--color-cinnabar)] pl-3 font-heading">Blog Posts</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {results.blogPosts.map((post, index) => (
-                    <div 
-                      key={index} 
-                      className="animate-fade-in" 
-                      style={{ animationDelay: `${0.1 * index}s` }}
-                    >
-                      <BlogPost
-                        title={post.title}
-                        excerpt={post.excerpt}
-                        date={new Date(post.publishedAt).toLocaleDateString()}
-                        imageUrl={post.imageUrl}
-                        url={`/blog/${post.slug}`}
-                        tags={post.tags}
-                      />
-                    </div>
-                  ))}
+      
+      <main className="min-h-screen flex flex-col pt-2 md:pt-8 pb-16 md:pb-28">
+        {/* Welcome Section - Only show when no messages */}
+        {messages.length === 0 && (
+          <div className={mounted ? "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center animate-fade-in" : "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center opacity-0"}>
+            <div className="-mt-12 md:-mt-16">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-6 font-heading animate-gradient">
+                Your Personal Growth Assistant
+              </h1>
+              <p className="text-sm md:text-xl mb-3 md:mb-12 text-[var(--muted-foreground)] max-w-2xl mx-auto">
+                Share what's on your mind, and I'll help guide you with insights rooted in depth psychology.
+              </p>
+              
+              <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-12">
+                <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xs md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Personal Guidance</h3>
+                  <p className="text-center text-[10px] md:text-sm hidden md:block">
+                    Get personalized insights for your specific life challenges
+                  </p>
+                </div>
+                
+                <div className="card-sm md:card group hover:border-[var(--color-verdigris)] transition-all">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-verdigris)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xs md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Depth Perspective</h3>
+                  <p className="text-center text-[10px] md:text-sm hidden md:block">
+                    Discover insights rooted in depth psychology and ancient wisdom
+                  </p>
+                </div>
+                
+                <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all">
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xs md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Practical Steps</h3>
+                  <p className="text-center text-[10px] md:text-sm hidden md:block">
+                    Get actionable guidance to move forward in your journey
+                  </p>
                 </div>
               </div>
-            )}
-            
-            {/* YouTube Videos */}
-            {results.videos && results.videos.length > 0 && (
-              <div>
-                <h3 className="text-2xl font-semibold mb-8 border-l-4 border-[var(--color-verdigris)] pl-3 font-heading">YouTube Videos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {results.videos.map((video, index) => (
-                    <div 
-                      key={index} 
-                      className="animate-fade-in" 
-                      style={{ animationDelay: `${0.1 * index}s` }}
-                    >
-                      <VideoCard
-                        title={video.title}
-                        description={video.description}
-                        url={video.url}
-                        thumbnailUrl={video.thumbnailUrl}
-                        tags={video.tags}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {(!results.blogPosts?.length && !results.videos?.length) && (
-              <div className="text-center py-10 animate-fade-in">
-                <p className="text-xl text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
-                  No results found for "{query}". Try a different search term.
-                </p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-10 animate-fade-in">
-            <h2 className="text-3xl font-bold mb-6 font-heading">Start Your Journey</h2>
-            <p className="text-xl text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70 max-w-2xl mx-auto">
-              Type what you're looking for above, and we'll find the most relevant content to help you.
-            </p>
-            <div className="mt-12 max-w-lg mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-[#363636] p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="w-12 h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold mb-2 text-center">Read Blog Articles</h3>
-                <p className="text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70 text-center">
-                  Discover in-depth articles on personal growth and development.
-                </p>
-              </div>
-              <div className="bg-white dark:bg-[#363636] p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="w-12 h-12 bg-[var(--color-verdigris)]/10 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold mb-2 text-center">Watch Videos</h3>
-                <p className="text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70 text-center">
-                  Learn from video content that addresses your specific challenges.
+              
+              <div className="text-center mb-2 md:mb-4 mt-2 md:mt-8 glass py-1.5 md:py-3 px-3 md:px-6 mx-auto inline-block rounded-full">
+                <p className="text-[var(--muted-foreground)] italic text-[10px] md:text-sm">
+                  Try: "handling anxiety", "finding motivation", "relationships"
                 </p>
               </div>
             </div>
           </div>
         )}
-      </section>
-
-      {/* Inbox Insights Section */}
-      <section id="insights" className="bg-white dark:bg-[#363636] py-24 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 font-heading">Inbox Insights</h2>
-            <p className="text-lg text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70 mb-10">
-              Bi-weekly reflections—straight to your inbox
-            </p>
-            
-            {formSuccess ? (
-              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg">
-                <p className="text-green-600 dark:text-green-400 font-medium">
-                  Thank you for subscribing! You'll receive our insights soon.
-                </p>
-              </div>
-            ) : (
-              <form 
-                action="https://submit-form.com/dlcpEy9sh"
-                method="POST"
-                className="max-w-md mx-auto"
-                onSubmit={handleSubscribe}
-              >
-                <input 
-                  type="hidden" 
-                  name="_redirect" 
-                  value="false" 
-                />
-                <div className="mb-6">
-                  <label htmlFor="email" className="sr-only">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Your email address"
-                    className="w-full px-4 py-3 rounded-full text-[var(--color-jet)] bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-cinnabar)]/50 shadow-sm"
-                    required
-                  />
-                </div>
-                <input
-                  type="hidden"
-                  id="message"
-                  name="message"
-                  value="Newsletter signup"
-                />
-                {formError && (
-                  <div className="mb-4 text-[var(--color-cinnabar)]">
-                    {formError}
+        
+        {/* Chat Messages */}
+        {messages.length > 0 && (
+          <div className="flex-grow px-2 md:px-4 pb-4 pt-6 max-w-4xl mx-auto w-full overflow-y-auto">
+            <div className="flex flex-col space-y-4 md:space-y-6">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                  } animate-fade-in`}
+                >
+                  {message.role === 'assistant' && (
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-end mb-1 flex items-center justify-center text-white font-bold text-xs">
+                      DF
+                    </div>
+                  )}
+                  <div
+                    className={`${message.role === 'user' ? 'message-bubble-user' : 'message-bubble-ai'} text-sm md:text-base`}
+                  >
+                    {message.content || (isLoading && message.role === 'assistant' ? 'Thinking...' : '')}
                   </div>
-                )}
-                <Button variant="primary" size="large" fullWidth type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                  {message.role === 'user' && (
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-[var(--color-verdigris)] flex-shrink-0 ml-1 md:ml-2 self-end mb-1 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 md:h-4 md:w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Loading indicator */}
+              {isLoading && !messages.some(m => m.role === 'assistant' && !m.content) && (
+                <div className="flex justify-start animate-fade-in">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-end mb-1 flex items-center justify-center text-white font-bold text-xs">
+                    DF
+                  </div>
+                  <div className="message-bubble-ai">
+                    <LoadingSpinner />
+                  </div>
+                </div>
+              )}
+              
+              {/* Invisible div for scroll reference */}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+        )}
+        
+        {/* Input Form */}
+        <div className="sticky bottom-0 w-full bg-[var(--background)] pt-2 pb-4 md:pb-8 shadow-up-sm mt-auto">
+          <div className="max-w-4xl mx-auto px-2 md:px-4">
+            <form onSubmit={handleSubmit} className="relative glass">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onInput={handleTextareaInput}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter your concern or question..."
+                className="w-full px-3 md:px-4 py-2 md:py-3 pr-16 md:pr-24 rounded-lg bg-transparent border-0 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] text-[var(--foreground)] resize-none text-sm md:text-base"
+                rows={1}
+                disabled={isLoading}
+              />
+              <div className="absolute right-1 md:right-2 bottom-1 md:bottom-2">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={isLoading || !input.trim()}
+                  className="h-8 w-8 md:h-auto md:w-auto flex items-center justify-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                 </Button>
-              </form>
-            )}
+              </div>
+            </form>
+            
+            <div className="mt-1 md:mt-2 text-[10px] md:text-xs text-[var(--muted-foreground)] text-center">
+              <Link href="/website" className="underline hover:text-[var(--color-cinnabar)] transition-colors">
+                Visit our website
+              </Link> to explore our content or learn more about The Depth Factor
+            </div>
           </div>
         </div>
-      </section>
-
+      </main>
+      
       <Footer />
     </div>
   );

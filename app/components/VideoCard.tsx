@@ -1,61 +1,70 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Define the type for video data
 interface VideoCardProps {
   title: string;
   description: string;
   url: string;
-  thumbnailUrl?: string;
+  thumbnailUrl: string;
   tags?: string[];
 }
 
-export default function VideoCard({ title, description, url, thumbnailUrl, tags }: VideoCardProps) {
-  // Extract YouTube video ID from URL
-  const getYouTubeThumbnail = (youtubeUrl: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|e\/|u\/\w+\/|embed\/|v=)([^#\&\?]*).*/;
-    const match = youtubeUrl.match(regExp);
-    const videoId = match && match[2].length === 11 ? match[2] : null;
-    
-    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : thumbnailUrl;
-  };
-
-  const thumbnail = thumbnailUrl || getYouTubeThumbnail(url);
-
+const VideoCard = ({ title, description, url, thumbnailUrl, tags = [] }: VideoCardProps) => {
   return (
-    <div className="bg-white dark:bg-[#363636] rounded-md shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-1 border border-gray-100 dark:border-gray-700">
-      {thumbnail && (
-        <div className="relative">
-          <Link href={url} target="_blank" rel="noopener noreferrer">
-            <div className="relative w-full h-48 overflow-hidden">
-              <img src={thumbnail} alt={title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center transition-all duration-300 hover:bg-opacity-20">
-                <div className="w-12 h-12 bg-[var(--color-cinnabar)] rounded-full flex items-center justify-center transform transition-transform duration-300 hover:scale-110">
-                  <div className="w-0 h-0 border-t-6 border-b-6 border-l-10 border-transparent border-l-white ml-1"></div>
-                </div>
+    <Link href={url} target="_blank" rel="noopener noreferrer" className="block group">
+      <div className="card overflow-hidden h-full flex flex-col hover:border-[var(--color-verdigris)] transition-all duration-300">
+        <div className="relative h-48 w-full mb-4 overflow-hidden rounded-lg">
+          <Image
+            src={thumbnailUrl}
+            alt={title}
+            fill
+            className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-[var(--color-verdigris)] flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
               </div>
             </div>
-          </Link>
+          </div>
+          {tags && tags.length > 0 && (
+            <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
+              {tags.map((tag, index) => (
+                <span 
+                  key={index} 
+                  className="text-xs font-medium px-2 py-1 rounded-full bg-[var(--color-verdigris)] text-white backdrop-blur-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-      <div className="p-6">
-        <div className="flex flex-wrap gap-2 mb-3">
-          {tags?.map((tag, index) => (
-            <span key={index} className="text-xs bg-gray-100 dark:bg-gray-700 text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70 px-2 py-1 rounded-sm">
-              {tag}
+        
+        <div className="flex-1 flex flex-col">
+          <h3 className="text-lg font-semibold mb-2 group-hover:text-[var(--color-verdigris)] transition-colors line-clamp-2">{title}</h3>
+          <p className="text-sm text-[var(--foreground)]/80 mb-4 flex-1 line-clamp-3">{description}</p>
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              </svg>
+              <span className="text-xs ml-1 font-medium text-[var(--foreground)]/70">YouTube</span>
+            </div>
+            <span className="text-xs font-bold text-[var(--color-verdigris)] flex items-center group-hover:translate-x-1 transition-transform">
+              Watch now
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </span>
-          ))}
+          </div>
         </div>
-        <h3 className="text-xl font-semibold mb-3 text-[var(--color-jet)] dark:text-[var(--color-floral-white)] tracking-tight">{title}</h3>
-        <p className="text-[var(--color-jet)]/70 dark:text-[var(--color-floral-white)]/70 text-sm mb-4">{description}</p>
-        <Link 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-[var(--color-cinnabar)] hover:text-[#c04d2f] transition-colors text-sm font-medium"
-        >
-          Watch video
-        </Link>
       </div>
-    </div>
+    </Link>
   );
-} 
+};
+
+export default VideoCard; 

@@ -64,4 +64,80 @@ export async function getFeaturedVideos() {
     console.error('Error fetching videos:', error);
     throw error;
   }
+}
+
+/**
+ * Interface for the action buttons in AI responses
+ */
+export interface ActionButton {
+  id: string;
+  label: string;
+  action: string;
+}
+
+/**
+ * Interface for the AI chat response
+ */
+export interface AIChatResponse {
+  content: string;
+  buttons: ActionButton[];
+}
+
+/**
+ * Get AI response to user message
+ * @param message User's message/concern
+ * @returns Promise containing AI response with action buttons
+ */
+export async function getAIResponse(message: string): Promise<AIChatResponse> {
+  try {
+    // In production, this would call your AI service endpoint
+    // This is a placeholder mock implementation
+    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Generate mock response
+    // Replace this with actual API call in production
+    const actionButtons: ActionButton[] = [
+      { 
+        id: 'content', 
+        label: 'Explore Related Content', 
+        action: 'content' 
+      },
+      { 
+        id: 'understanding', 
+        label: 'Deeper Understanding', 
+        action: 'understanding' 
+      },
+      { 
+        id: 'steps', 
+        label: 'Steps to Take', 
+        action: 'steps' 
+      }
+    ];
+    
+    return {
+      content: `I understand that you're dealing with "${message}". This is a common challenge many people face. Let me help you navigate this situation from a depth psychology perspective.`,
+      buttons: actionButtons
+    };
+    
+    // Actual implementation would be like:
+    // const response = await fetch(`${API_URL}/ai-chat`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ message }),
+    // });
+    // 
+    // if (!response.ok) {
+    //   throw new Error('Failed to get AI response');
+    // }
+    // 
+    // return await response.json();
+    
+  } catch (error) {
+    console.error('Error getting AI response:', error);
+    throw error;
+  }
 } 

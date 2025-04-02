@@ -1,143 +1,143 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Logo from './Logo';
 
-export default function Header() {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
-  // Handle scroll events to change header appearance when scrolled
+  // Handle scroll effect for header background
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 10);
     };
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle resize events to close mobile menu on desktop size
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768 && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isMenuOpen]);
-
-  // Close menu when clicking outside or using escape key
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (isMenuOpen && !target.closest('.mobile-menu') && !target.closest('.hamburger')) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (isMenuOpen && e.key === 'Escape') {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isMenuOpen]);
+  // Determine if a nav link is active
+  const isActive = (path: string) => {
+    if (path === '/' && pathname === '/') return true;
+    if (path !== '/' && pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
-    <header className={`${scrolled ? 'py-3 shadow-md' : 'py-5'} bg-white dark:bg-[#363636] shadow-sm sticky top-0 z-50 transition-all duration-300`}>
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <Logo />
-        
-        {/* Desktop Navigation */}
-        <nav className="hidden md:block">
-          <ul className="flex space-x-8">
-            <li className="group relative overflow-hidden">
-              <Link 
-                href="https://www.youtube.com/@thedepthfactor" 
-                target="_blank" 
-                className="text-[var(--color-jet)] dark:text-[var(--color-floral-white)] hover:text-[var(--color-cinnabar)] dark:hover:text-[var(--color-cinnabar)] font-medium transition-colors duration-300"
-              >
-                Youtube
-                <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[var(--color-cinnabar)] transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            </li>
-            <li className="group relative overflow-hidden">
-              <Link 
-                href="#insights" 
-                className="text-[var(--color-jet)] dark:text-[var(--color-floral-white)] hover:text-[var(--color-cinnabar)] dark:hover:text-[var(--color-cinnabar)] font-medium transition-colors duration-300"
-              >
-                Inbox Insights
-                <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[var(--color-cinnabar)] transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        
-        {/* Hamburger Menu Button */}
-        <button 
-          className="hamburger md:hidden flex flex-col justify-center items-center w-10 h-10 space-y-1.5 z-50"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Menu"
-          aria-expanded={isMenuOpen}
-        >
-          <span className={`block w-6 h-0.5 bg-[var(--color-jet)] dark:bg-[var(--color-floral-white)] rounded transition-transform duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-          <span className={`block w-6 h-0.5 bg-[var(--color-jet)] dark:bg-[var(--color-floral-white)] rounded transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-          <span className={`block w-6 h-0.5 bg-[var(--color-jet)] dark:bg-[var(--color-floral-white)] rounded transition-transform duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-        </button>
-        
-        {/* Mobile Menu */}
-        <div 
-          className={`mobile-menu fixed top-0 right-0 h-full w-full md:w-80 bg-white dark:bg-[#363636] shadow-xl transform transition-transform duration-300 ease-in-out z-40 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        >
-          <div className="flex flex-col h-full p-8 pt-24">
-            <nav className="flex-1">
-              <ul className="space-y-6">
-                <li>
-                  <Link 
-                    href="https://www.youtube.com/@thedepthfactor" 
-                    target="_blank" 
-                    className="text-lg text-[var(--color-jet)] dark:text-[var(--color-floral-white)] hover:text-[var(--color-cinnabar)] dark:hover:text-[var(--color-cinnabar)] font-medium transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Youtube
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    href="#insights" 
-                    className="text-lg text-[var(--color-jet)] dark:text-[var(--color-floral-white)] hover:text-[var(--color-cinnabar)] dark:hover:text-[var(--color-cinnabar)] font-medium transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Inbox Insights
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-            <div className="mt-auto pt-6 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-[var(--color-jet)]/60 dark:text-[var(--color-floral-white)]/60">
-                © {new Date().getFullYear()} The Depth Factor
-              </p>
-            </div>
-          </div>
+    <>
+      <header 
+        className={`fixed w-full top-0 z-50 px-4 transition-all duration-300 ${
+          scrolled ? 'py-2 bg-[var(--background)]/90 backdrop-blur-md shadow-md' : 'py-4 bg-transparent'
+        }`}
+      >
+        <div className="container mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/">
+            <Logo className="h-10 w-auto" />
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link 
+              href="/website" 
+              className={`text-sm font-medium transition-colors hover:text-[var(--color-cinnabar)] ${
+                isActive('/website') ? 'text-[var(--color-cinnabar)] font-bold' : 'text-[var(--foreground)]'
+              }`}
+            >
+              Website
+            </Link>
+            <Link 
+              href="/about" 
+              className={`text-sm font-medium transition-colors hover:text-[var(--color-cinnabar)] ${
+                isActive('/about') ? 'text-[var(--color-cinnabar)] font-bold' : 'text-[var(--foreground)]'
+              }`}
+            >
+              About
+            </Link>
+            <Link 
+              href="/legal" 
+              className={`text-sm font-medium transition-colors hover:text-[var(--color-cinnabar)] ${
+                isActive('/legal') ? 'text-[var(--color-cinnabar)] font-bold' : 'text-[var(--foreground)]'
+              }`}
+            >
+              Legal
+            </Link>
+            
+            {/* CTA Link */}
+            <Link href="/" className="glass px-4 py-2 rounded-full text-sm font-medium bg-white/5 hover:bg-white/10 transition-colors border border-[var(--border)] hover:border-[var(--color-cinnabar)] text-white">
+              Get Started
+            </Link>
+          </nav>
+          
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden text-[var(--foreground)] focus:outline-none"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         </div>
         
-        {/* Overlay when mobile menu is open */}
+        {/* Mobile Navigation Overlay */}
         {isMenuOpen && (
-          <div 
-            className="fixed inset-0 bg-black/30 z-30 md:hidden"
-            onClick={() => setIsMenuOpen(false)}
-          ></div>
+          <div className="md:hidden fixed inset-0 bg-[var(--background)] pt-20 px-4 z-40">
+            <nav className="flex flex-col space-y-6 items-center">
+              <Link 
+                href="/website" 
+                className={`text-lg font-medium transition-colors hover:text-[var(--color-cinnabar)] ${
+                  isActive('/website') ? 'text-[var(--color-cinnabar)] font-bold' : 'text-[var(--foreground)]'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Website
+              </Link>
+              <Link 
+                href="/about" 
+                className={`text-lg font-medium transition-colors hover:text-[var(--color-cinnabar)] ${
+                  isActive('/about') ? 'text-[var(--color-cinnabar)] font-bold' : 'text-[var(--foreground)]'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                href="/legal" 
+                className={`text-lg font-medium transition-colors hover:text-[var(--color-cinnabar)] ${
+                  isActive('/legal') ? 'text-[var(--color-cinnabar)] font-bold' : 'text-[var(--foreground)]'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Legal
+              </Link>
+              
+              {/* Mobile CTA Link */}
+              <Link 
+                href="/" 
+                className="glass w-full text-center px-4 py-3 rounded-full text-base font-medium bg-white/5 hover:bg-white/10 transition-colors border border-[var(--border)] hover:border-[var(--color-cinnabar)] text-white"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </nav>
+          </div>
         )}
-      </div>
-    </header>
+      </header>
+      {/* Spacer div to add padding below header */}
+      <div className="h-24"></div>
+    </>
   );
-} 
+};
+
+export default Header; 

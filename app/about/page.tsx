@@ -15,7 +15,7 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)]">
+    <div className="min-h-screen bg-[var(--color-jet)]">
       <Header />
       
       {/* Hero Section */}
@@ -65,10 +65,10 @@ export default function About() {
               </div>
             </div>
             <div className="w-full md:w-2/3">
-              <h2 className="text-3xl font-bold mb-6 font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+              <h2 className="text-3xl font-bold mb-6 font-heading text-[var(--color-floral-white)]">
                 My Story
               </h2>
-              <div className="prose prose-lg dark:prose-invert max-w-none">
+              <div className="prose prose-lg prose-invert max-w-none">
                 <p>
                   I'm Dr. Raghav Suri, a clinical psychologist passionate about helping people find meaning and depth in their relationships and personal growth.
                 </p>
@@ -85,64 +85,64 @@ export default function About() {
       </section>
 
       {/* Philosophy Section */}
-      <section className="py-20 bg-white dark:bg-[#363636]">
+      <section className="py-20 bg-[#363636]">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-10 text-center font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+            <h2 className="text-3xl font-bold mb-10 text-center font-heading text-[var(--color-floral-white)]">
               My Philosophy
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
+              <div className="bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
                 <div className="w-16 h-16 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-6">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-floral-white)]">
                   Psychological Depth
                 </h3>
-                <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                <p className="text-[var(--color-floral-white)]/80">
                   I believe that true growth happens when we're willing to explore our inner worlds with curiosity and courage. By understanding our patterns, motivations, and emotions, we can make more intentional choices in our lives.
                 </p>
               </div>
-              <div className="bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
+              <div className="bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
                 <div className="w-16 h-16 bg-[var(--color-verdigris)]/10 rounded-full flex items-center justify-center mb-6">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-floral-white)]">
                   Authentic Connection
                 </h3>
-                <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                <p className="text-[var(--color-floral-white)]/80">
                   Meaningful relationships are built on authenticity, vulnerability, and effective communication. By developing these skills, we can create deeper bonds with others while staying true to ourselves.
                 </p>
               </div>
             </div>
             <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
+              <div className="bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
                 <div className="w-16 h-16 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-6">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-floral-white)]">
                   Practical Application
                 </h3>
-                <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                <p className="text-[var(--color-floral-white)]/80">
                   Theory without practice has limited value. I focus on translating psychological concepts into actionable strategies that can be applied in everyday life for real, meaningful change.
                 </p>
               </div>
-              <div className="bg-[var(--color-floral-white)] dark:bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
+              <div className="bg-[var(--color-jet)] p-8 rounded-lg shadow-md">
                 <div className="w-16 h-16 bg-[var(--color-verdigris)]/10 rounded-full flex items-center justify-center mb-6">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                <h3 className="text-xl font-semibold mb-4 font-heading text-[var(--color-floral-white)]">
                   Accessibility
                 </h3>
-                <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                <p className="text-[var(--color-floral-white)]/80">
                   Psychological wisdom should be available to everyone. I'm committed to sharing knowledge in a way that's understandable, relatable, and free from unnecessary jargon.
                 </p>
               </div>
@@ -154,10 +154,10 @@ export default function About() {
       {/* Credentials Section */}
       <section className="py-20 container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-10 text-center font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+          <h2 className="text-3xl font-bold mb-10 text-center font-heading text-[var(--color-floral-white)]">
             Credentials & Experience
           </h2>
-          <div className="bg-white dark:bg-[#363636] p-8 rounded-lg shadow-md">
+          <div className="bg-[#363636] p-8 rounded-lg shadow-md">
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="flex-shrink-0 mr-4">
@@ -170,10 +170,10 @@ export default function About() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                  <h3 className="text-lg font-semibold font-heading text-[var(--color-floral-white)]">
                     Education
                   </h3>
-                  <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                  <p className="text-[var(--color-floral-white)]/80">
                     Doctorate in Clinical Psychology (Psy.D) with specialization in depth psychology and integrative approaches
                   </p>
                 </div>
@@ -187,10 +187,10 @@ export default function About() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                  <h3 className="text-lg font-semibold font-heading text-[var(--color-floral-white)]">
                     Clinical Practice
                   </h3>
-                  <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                  <p className="text-[var(--color-floral-white)]/80">
                     Over 10 years of experience working with individuals and couples, specializing in relationship issues, personal growth, and emotional intelligence
                   </p>
                 </div>
@@ -204,10 +204,10 @@ export default function About() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                  <h3 className="text-lg font-semibold font-heading text-[var(--color-floral-white)]">
                     Publishing
                   </h3>
-                  <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                  <p className="text-[var(--color-floral-white)]/80">
                     Author of research papers on emotional intelligence and relationship dynamics in peer-reviewed journals
                   </p>
                 </div>
@@ -221,10 +221,10 @@ export default function About() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold font-heading text-[var(--color-jet)] dark:text-[var(--color-floral-white)]">
+                  <h3 className="text-lg font-semibold font-heading text-[var(--color-floral-white)]">
                     Speaking
                   </h3>
-                  <p className="text-[var(--color-jet)]/80 dark:text-[var(--color-floral-white)]/80">
+                  <p className="text-[var(--color-floral-white)]/80">
                     Regular speaker at conferences and workshops on topics including emotional intelligence, depth psychology, and authentic relationships
                   </p>
                 </div>

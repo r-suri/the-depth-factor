@@ -1,66 +1,56 @@
-import { ReactNode } from 'react';
+import React, { ButtonHTMLAttributes } from 'react';
 
-interface ButtonProps {
-  children: ReactNode;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'small' | 'medium' | 'large';
-  type?: 'button' | 'submit' | 'reset';
   fullWidth?: boolean;
-  onClick?: () => void;
   className?: string;
-  disabled?: boolean;
 }
 
-export default function Button({
+const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
   size = 'medium',
-  type = 'button',
   fullWidth = false,
-  onClick,
   className = '',
-  disabled = false,
-}: ButtonProps) {
-  // Define variant styles
-  const variantStyles = {
-    primary: 'bg-[var(--color-cinnabar)] hover:bg-[#c04d2f] text-white',
-    secondary: 'bg-[var(--color-verdigris)] hover:bg-[#289295] text-white',
-    outline: 'bg-transparent border border-[var(--color-jet)] dark:border-[var(--color-floral-white)] text-[var(--color-jet)] dark:text-[var(--color-floral-white)] hover:bg-[var(--color-jet)] hover:dark:bg-[var(--color-floral-white)] hover:text-white hover:dark:text-[var(--color-jet)]',
+  ...props
+}) => {
+  // Base styles for all button variants
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2';
+  
+  // Variant styles with enhanced contrast
+  const variantClasses = {
+    primary: 'bg-[var(--color-cinnabar)] text-white hover:bg-[var(--color-cinnabar-dark)] hover:-translate-y-0.5 shadow-md hover:shadow-lg focus:ring-[var(--color-cinnabar)]',
+    secondary: 'bg-[var(--color-verdigris)] text-white hover:bg-[var(--color-verdigris-dark)] hover:-translate-y-0.5 shadow-md hover:shadow-lg focus:ring-[var(--color-verdigris)]',
+    outline: 'border-2 border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:-translate-y-0.5 focus:ring-[var(--foreground)]',
   };
-
-  // Define size styles
-  const sizeStyles = {
-    small: 'text-sm py-1.5 px-4',
-    medium: 'text-base py-2.5 px-6',
-    large: 'text-base py-3 px-8',
+  
+  // Size styles
+  const sizeClasses = {
+    small: 'text-xs px-3 py-1.5 space-x-1.5',
+    medium: 'text-sm px-4 py-2 space-x-2',
+    large: 'text-base px-6 py-3 space-x-3',
   };
-
-  // Build class string
-  const buttonClasses = `
-    ${variantStyles[variant]}
-    ${sizeStyles[size]}
-    ${fullWidth ? 'w-full' : ''}
-    rounded-full
-    font-medium
-    transition-all
-    duration-300
-    focus:ring-2
-    focus:ring-opacity-50
-    focus:outline-none
-    ${variant === 'primary' ? 'focus:ring-[var(--color-cinnabar)]' : ''}
-    ${variant === 'secondary' ? 'focus:ring-[var(--color-verdigris)]' : ''}
-    ${disabled ? 'opacity-50 cursor-not-allowed' : 'transform hover:-translate-y-1 hover:shadow-md'}
-    ${className}
-  `;
-
+  
+  // Width styles
+  const widthClasses = fullWidth ? 'w-full' : '';
+  
+  // Disabled styles
+  const disabledClasses = props.disabled
+    ? 'opacity-70 cursor-not-allowed pointer-events-none'
+    : '';
+  
+  // Combine all classes
+  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClasses} ${disabledClasses} ${className}`;
+  
   return (
     <button
-      type={type}
       className={buttonClasses}
-      onClick={onClick}
-      disabled={disabled}
+      {...props}
     >
       {children}
     </button>
   );
-} 
+};
+
+export default Button; 
