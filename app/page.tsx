@@ -94,24 +94,25 @@ export default function Home() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50 z-10"></div>
-          <Image 
+        <Image
             src="/images/hero-homepage.jpg" 
             alt="The Depth Factor Hero Image"
             fill
-            priority
+          priority
             className="object-cover"
           />
         </div>
+        {/* Pulse Beats effect */}
         <div className="container mx-auto px-4 relative z-20">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className={mounted ? "text-5xl md:text-6xl font-bold mb-12 animate-slide-up delay-400 tracking-tight leading-tight text-white font-heading" : "text-5xl md:text-6xl font-bold mb-12 opacity-0 tracking-tight leading-tight text-white font-heading"}>
               Inner world<span className="mx-4">➔</span>Outer world
             </h1>
-            <p className={mounted ? "text-xl md:text-2xl max-w-2xl mx-auto mb-12 animate-slide-up delay-600 text-white/90" : "text-xl md:text-2xl max-w-2xl mx-auto mb-12 opacity-0 text-white/90"}>
+            <p className={mounted ? "text-xl md:text-2xl max-w-2xl mx-auto mb-16 animate-slide-up delay-600 text-white/90" : "text-xl md:text-2xl max-w-2xl mx-auto mb-20 opacity-0 text-white/90"}>
             Dive Deeper into Your Life 
             </p>
             
-            <div className={mounted ? "flex flex-col sm:flex-row gap-5 justify-center mb-16 animate-slide-up delay-800" : "flex flex-col sm:flex-row gap-5 justify-center mb-16 opacity-0"}>
+            <div className={mounted ? "flex flex-col sm:flex-row gap-5 justify-center mt-12 mb-16 animate-slide-up delay-800" : "flex flex-col sm:flex-row gap-5 justify-center mb-16 opacity-0"}>
               <Link href="https://www.youtube.com/@thedepthfactor" target="_blank">
                 <Button variant="primary" size="large">
                   Explore on Youtube
