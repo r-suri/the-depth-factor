@@ -18,6 +18,43 @@ interface Message {
   timestamp: Date;
 }
 
+// Helper function to format message content
+const formatMessageContent = (content: string) => {
+  if (!content) return '';
+
+  // Replace newlines with proper paragraph breaks
+  let formatted = content
+    // Convert double line breaks to paragraph tags
+    .replace(/\n\n+/g, '</p><p>')
+    // Convert single line breaks within paragraphs to <br>
+    .replace(/\n/g, '<br>')
+    // Bold text between asterisks
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+    // Format numbered lists (e.g., 1. item)
+    .replace(/(\d+)\.\s(.*?)(?=\n\d+\.|\n\n|$)/g, '<li>$2</li>')
+    // Format bullet lists
+    .replace(/(\n|^)\-\s(.*?)(?=\n\-|\n\n|$)/g, '<li>$2</li>');
+
+  // Wrap in paragraph tags if not already
+  if (!formatted.startsWith('<p>')) {
+    formatted = '<p>' + formatted;
+  }
+  if (!formatted.endsWith('</p>')) {
+    formatted = formatted + '</p>';
+  }
+
+  // Clean up any empty paragraphs
+  formatted = formatted.replace(/<p><\/p>/g, '');
+
+  // Replace bullet lists with proper ul tags
+  formatted = formatted.replace(/<li>(.*?)<\/li>/g, (match) => {
+    return '<ul class="list-disc pl-5 my-2">' + match + '</ul>';
+  }).replace(/<\/ul><ul class="list-disc pl-5 my-2">/g, '');
+
+  return formatted;
+};
+
 export default function HiddenChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -254,14 +291,25 @@ export default function HiddenChat() {
                   } animate-fade-in`}
                 >
                   {message.role === 'assistant' && (
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-end mb-1 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-start mt-1 flex items-center justify-center text-white font-bold text-xs">
                       DF
                     </div>
                   )}
                   <div
-                    className={`${message.role === 'user' ? 'message-bubble-user' : 'message-bubble-ai'} text-sm md:text-base`}
+                    className={`${message.role === 'user' ? 'message-bubble-user' : 'message-bubble-ai'} text-sm md:text-base max-w-[80%]`}
                   >
-                    {message.content || (isLoading && message.role === 'assistant' ? 'Thinking...' : '')}
+                    {message.role === 'user' ? (
+                      message.content || ''
+                    ) : (
+                      <div 
+                        className="prose-sm md:prose-base prose-p:my-2 prose-strong:text-[var(--color-cinnabar)] prose-li:my-1"
+                        dangerouslySetInnerHTML={{ 
+                          __html: message.content 
+                            ? formatMessageContent(message.content) 
+                            : (isLoading ? 'Thinking...' : '') 
+                        }} 
+                      />
+                    )}
                   </div>
                   {message.role === 'user' && (
                     <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-[var(--color-verdigris)] flex-shrink-0 ml-1 md:ml-2 self-end mb-1 flex items-center justify-center">
@@ -276,7 +324,7 @@ export default function HiddenChat() {
               {/* Loading indicator */}
               {isLoading && !messages.some(m => m.role === 'assistant' && !m.content) && (
                 <div className="flex justify-start animate-fade-in">
-                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-end mb-1 flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-start mt-1 flex items-center justify-center text-white font-bold text-xs">
                     DF
                   </div>
                   <div className="message-bubble-ai">
