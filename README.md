@@ -8,8 +8,8 @@ The Depth Factor is a comprehensive digital platform designed to provide accessi
 ## Features & Pages
 
 ### Home Page
-- **AI Chat Assistant**: Engage with an AI-powered assistant trained to provide psychological insights and personal growth guidance
 - **Content Showcase**: Featured articles and videos about psychological concepts
+- **Content Search**: Find personalized content based on your interests
 - **Newsletter Signup**: Subscribe to bi-weekly insights delivered via email
 
 ### About Page
@@ -20,6 +20,9 @@ The Depth Factor is a comprehensive digital platform designed to provide accessi
 ### Legal Pages
 - **Privacy Policy**: Information about data collection and privacy practices
 - **Terms of Service**: Rules and guidelines for using the platform
+
+### Hidden Features
+- **AI Chat Assistant**: Engage with an AI-powered assistant trained to provide psychological insights and personal growth guidance (available at `/hidden-chat`)
 
 ## AI Functionality
 
@@ -56,12 +59,14 @@ app/
 │   ├── Footer.tsx    # Site footer
 │   └── ...           # Other UI components
 ├── api/              # Backend API routes
-│   └── together/     # Together.ai API integration
+│   ├── together/     # Together.ai API integration
+│   └── chat/         # Chat API routes
 ├── config/           # Application configuration
 │   └── ai.ts         # AI model settings
 ├── about/            # About page
 ├── legal/            # Privacy and terms pages
-└── page.tsx          # Homepage
+├── hidden-chat/      # Hidden AI chat interface
+└── page.tsx          # Homepage (website landing page)
 ```
 
 ## Development Status
@@ -69,14 +74,20 @@ app/
 ### Completed
 - Core platform architecture and design
 - AI chat integration with Together.ai
-- Home page with chat interface
+- Website as homepage with content showcase
+- Hidden chat interface for development
 - About page with professional information
 - Legal documentation pages
+
+### In Progress
+- Content recommendation system
+- Semantic search capabilities
+- AI assistant with brand voice
 
 ### Pending/Future Enhancements
 - User authentication system
 - Saved conversation history
-- Content recommendation system
+- RAG-powered AI responses
 - Mobile app version
 - Additional AI model integrations
 
@@ -104,6 +115,8 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+The AI chat interface is available at [http://localhost:3000/hidden-chat](http://localhost:3000/hidden-chat) during development.
 
 ## Deployment
 
