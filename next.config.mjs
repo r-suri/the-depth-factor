@@ -14,7 +14,8 @@ const nextConfig = {
     ],
   },
   env: {
-    TOGETHER_AI_API_KEY: process.env.TOGETHER_AI_API_KEY,
+    // Anthropic API key
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   },
 };
 

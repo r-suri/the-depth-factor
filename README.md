@@ -28,7 +28,7 @@ The Depth Factor is a comprehensive digital platform designed to provide accessi
 
 The platform integrates advanced AI capabilities through:
 
-- **Together.ai Integration**: Using DeepSeek V3 model for primary conversation capabilities
+- **Anthropic Integration**: Using Claude 3 series models for primary conversation capabilities
 - **Streaming Responses**: Real-time AI responses with typing indicators
 - **Context Management**: Maintains conversation history for contextual responses
 
@@ -42,7 +42,7 @@ The platform integrates advanced AI capabilities through:
 
 ### Backend
 - **API Routes**: Next.js API routes for backend functionality
-- **AI Integration**: Together.ai API (with DeepSeek V3 and Llama 3 models)
+- **AI Integration**: Anthropic API (with Claude 3 Haiku, Sonnet, and Opus models)
 - **Form Handling**: FormSpark for newsletter subscriptions
 
 ### Infrastructure
@@ -59,7 +59,7 @@ app/
 │   ├── Footer.tsx    # Site footer
 │   └── ...           # Other UI components
 ├── api/              # Backend API routes
-│   ├── together/     # Together.ai API integration
+│   ├── anthropic/     # Anthropic API integration
 │   └── chat/         # Chat API routes
 ├── config/           # Application configuration
 │   └── ai.ts         # AI model settings
@@ -73,7 +73,7 @@ app/
 
 ### Completed
 - Core platform architecture and design
-- AI chat integration with Together.ai
+- AI chat integration with Anthropic Claude models
 - Website as homepage with content showcase
 - Hidden chat interface for development
 - About page with professional information
@@ -103,7 +103,7 @@ yarn install
 
 Create a `.env.local` file with the following variables:
 ```
-TOGETHER_AI_API_KEY=your_api_key_here
+ANTHROPIC_API_KEY=your_api_key_here
 ```
 
 Then, run the development server:

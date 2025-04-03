@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ai-sdk/togetherai": "^0.2.5",
+    "@anthropic-ai/sdk": "^0.39.0",
     "ai": "^4.2.10",
     "next": "15.2.4",
     "react": "^19.0.0",

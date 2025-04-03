@@ -12,13 +12,13 @@ interface ModelConfig {
   temperature: number;
 }
 
-// Current model in use
+// Current model in use - placeholder for Anthropic Claude
 export const CURRENT_MODEL: ModelConfig = {
-  id: 'deepseek-ai/DeepSeek-V3',
-  provider: 'together',
-  displayName: 'DeepSeek V3',
-  contextWindow: 8192,
-  maxOutputTokens: 1000,
+  id: 'claude-3-haiku-20240307',
+  provider: 'anthropic',
+  displayName: 'Claude 3 Haiku',
+  contextWindow: 200000,
+  maxOutputTokens: 4096,
   temperature: 0.7
 };
 
@@ -26,18 +26,26 @@ export const CURRENT_MODEL: ModelConfig = {
 export const AVAILABLE_MODELS: ModelConfig[] = [
   CURRENT_MODEL,
   {
-    id: 'togethercomputer/llama-3-70b-instruct',
-    provider: 'together',
-    displayName: 'Llama-3 70B',
-    contextWindow: 8192,
-    maxOutputTokens: 1000,
+    id: 'claude-3-opus-20240229',
+    provider: 'anthropic',
+    displayName: 'Claude 3 Opus',
+    contextWindow: 200000,
+    maxOutputTokens: 4096,
     temperature: 0.7
   },
+  {
+    id: 'claude-3-sonnet-20240229',
+    provider: 'anthropic',
+    displayName: 'Claude 3 Sonnet',
+    contextWindow: 200000,
+    maxOutputTokens: 4096,
+    temperature: 0.7
+  }
 ];
 
 // Default settings for chat completions
 export const DEFAULT_CHAT_SETTINGS = {
   temperature: 0.7,
-  max_tokens: 1000,
+  max_tokens: 4096,
   stream: true,
 }; 

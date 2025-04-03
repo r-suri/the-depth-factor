@@ -19,40 +19,127 @@ interface Message {
 }
 
 // Helper function to format message content
-const formatMessageContent = (content: string) => {
-  if (!content) return '';
+const formatMessageContent = (text: string) => {
+  if (!text) return '';
+  
+  // Step 1: Normalize line breaks and clean up
+  let content = text.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
+  
+  // Step 2: Process headings - look for explicit headings and markdown style headings (###, ##, #)
+  content = content.replace(/^(#{1,3})\s+(.+)$/gm, (match, hashes, title) => {
+    const level = hashes.length;
+    return `<h${level}>${title.trim()}</h${level}>`;
+  });
+  
+  // Special handling for section headings like "Management & Treatment"
+  content = content.replace(/^([A-Z][A-Za-z\s&]+)$/gm, (match, title) => {
+    if (title.length > 12 && title.includes(' ')) { // Likely a title, not a short phrase
+      return `<h2>${title.trim()}</h2>`;
+    }
+    return match;
+  });
 
-  // Replace newlines with proper paragraph breaks
-  let formatted = content
-    // Convert double line breaks to paragraph tags
-    .replace(/\n\n+/g, '</p><p>')
-    // Convert single line breaks within paragraphs to <br>
-    .replace(/\n/g, '<br>')
-    // Bold text between asterisks
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
-    // Format numbered lists (e.g., 1. item)
-    .replace(/(\d+)\.\s(.*?)(?=\n\d+\.|\n\n|$)/g, '<li>$2</li>')
-    // Format bullet lists
-    .replace(/(\n|^)\-\s(.*?)(?=\n\-|\n\n|$)/g, '<li>$2</li>');
-
-  // Wrap in paragraph tags if not already
-  if (!formatted.startsWith('<p>')) {
-    formatted = '<p>' + formatted;
+  // Step 3a: Format numbered sections like "1. Therapy:" with strong emphasis
+  content = content.replace(/^(\d+\.)\s+([A-Z][a-z]+:)(.*)$/gm, (match, number, title, rest) => {
+    return `<p><strong>${number} ${title}</strong>${rest}</p>`;
+  });
+  
+  // Step 3b: Handle numbered lists (1., 2., etc.)
+  const numberedListPattern = /^(\d+\.)\s+(.+)$/gm;
+  let listItems = [];
+  let inNumberedList = false;
+  
+  // First mark all numbered lists
+  content = content.replace(numberedListPattern, (match, number, text) => {
+    if (!inNumberedList) {
+      inNumberedList = true;
+      return `<ol-start>\n<li>${text}</li>`;
+    }
+    return `<li>${text}</li>`;
+  });
+  
+  // Close any open numbered list
+  if (inNumberedList) {
+    content += '\n</ol-end>';
   }
-  if (!formatted.endsWith('</p>')) {
-    formatted = formatted + '</p>';
+  
+  // Then wrap consecutive list items in ol tags
+  content = content.replace(/<ol-start>([\s\S]*?)<\/ol-end>/g, (match, listContent) => {
+    return `<ol>${listContent}</ol>`;
+  });
+  
+  // Step 4: Identify bullet points and format them
+  // Handle bullet points (• or - or * format)
+  const bulletPattern = /^[•\-\*]\s+(.+)$/gm;
+  let inBulletList = false;
+  
+  // First mark all bullet lists
+  content = content.replace(bulletPattern, (match, text) => {
+    if (!inBulletList) {
+      inBulletList = true;
+      return `<ul-start>\n<li>${text}</li>`;
+    }
+    return `<li>${text}</li>`;
+  });
+  
+  // Close any open bullet list
+  if (inBulletList) {
+    content += '\n</ul-end>';
   }
-
-  // Clean up any empty paragraphs
-  formatted = formatted.replace(/<p><\/p>/g, '');
-
-  // Replace bullet lists with proper ul tags
-  formatted = formatted.replace(/<li>(.*?)<\/li>/g, (match) => {
-    return '<ul class="list-disc pl-5 my-2">' + match + '</ul>';
-  }).replace(/<\/ul><ul class="list-disc pl-5 my-2">/g, '');
-
-  return formatted;
+  
+  // Then wrap consecutive list items in ul tags
+  content = content.replace(/<ul-start>([\s\S]*?)<\/ul-end>/g, (match, listContent) => {
+    return `<ul>${listContent}</ul>`;
+  });
+  
+  // Step 5: Convert double line breaks to paragraph tags, but only for content that isn't already wrapped
+  content = content.replace(/(.+?)(\n\n|$)/g, (match, text) => {
+    // Skip if the text is already HTML-like
+    if (
+      text.trim().startsWith('<') && 
+      text.trim().endsWith('>') && 
+      !text.includes('<li>') // Special case for list items
+    ) {
+      return match;
+    }
+    return `<p>${text}</p>\n\n`;
+  });
+  
+  // Step 6: Process inline formatting
+  // Formatting bold text with ** or __
+  content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  content = content.replace(/\_\_([^_]+)\_\_/g, '<strong>$1</strong>');
+  
+  // Handle important terms (often in quotes or in brackets)
+  content = content.replace(/"([^"]+)"/g, '"<span class="term">$1</span>"');
+  content = content.replace(/\[([^\]]+)\]/g, '<span class="term">$1</span>');
+  
+  // Highlight medical/technical terms
+  const termPatterns = [
+    /\b(CBT|DBT|ACT|SSRI|TCA|MAOI|SNRI)\b/g, // Acronyms
+    /\b(Cognitive Behavioral Therapy|Dialectical Behavior Therapy|Acceptance and Commitment Therapy)\b/g,
+    /\b(Major Depressive Disorder|Generalized Anxiety Disorder|Panic Disorder|PTSD|OCD)\b/g
+  ];
+  
+  for (const pattern of termPatterns) {
+    content = content.replace(pattern, '<span class="term">$1</span>');
+  }
+  
+  // Format parenthetical info
+  content = content.replace(/\(([^)]+)\)/g, '<span class="parenthetical">($1)</span>');
+  
+  // Step 7: Clean up: removing empty paragraphs and fixing edge cases
+  content = content
+    .replace(/<p>\s*<\/p>/g, '') // Remove empty paragraphs
+    .replace(/<p><\/p>/g, '') // Remove empty paragraphs
+    .replace(/<p>\s*<(h[1-3]|ul|ol)/g, '<$1') // Remove paragraph tags around headings and lists
+    .replace(/<\/(h[1-3]|ul|ol)>\s*<\/p>/g, '</$1>') // Remove closing paragraph tags after headings and lists
+    .replace(/<p>(\s*<li>)/g, '$1') // Remove paragraph tags before list items
+    .replace(/(<\/li>\s*)<\/p>/g, '$1') // Remove closing paragraph tags after list items
+    .replace(/<br\s*\/?>(\s*<br\s*\/?>)+/g, '<br/>'); // Replace multiple consecutive breaks with a single one
+  
+  // Add the prose-chat class to the wrapper for styling
+  return `<div class="prose-chat">${content}</div>`;
 };
 
 export default function HiddenChat() {
@@ -129,8 +216,8 @@ export default function HiddenChat() {
       
       setMessages(prev => [...prev, aiMessage]);
       
-      // Call our Together.ai API with proper messages format
-      const response = await fetch('/api/together', {
+      // Call our Anthropic API with proper messages format
+      const response = await fetch('/api/anthropic', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,8 +306,132 @@ export default function HiddenChat() {
     }
   };
 
+  // Add this CSS to the component
+  const chatFormattingStyles = `
+    .prose-chat h1, .prose-chat h2, .prose-chat h3, 
+    .prose-chat .section-marker {
+      color: var(--color-cinnabar);
+      font-weight: 700;
+      line-height: 1.3;
+      margin-top: 1.75em;
+      margin-bottom: 0.5em;
+    }
+    
+    .prose-chat h1 {
+      font-size: 1.5em;
+    }
+    
+    .prose-chat h2 {
+      font-size: 1.3em;
+      letter-spacing: -0.01em;
+      border-bottom: 1px solid rgba(var(--color-cinnabar-rgb), 0.2);
+      padding-bottom: 0.3em;
+    }
+    
+    .prose-chat h3 {
+      font-size: 1.15em;
+    }
+    
+    .prose-chat ul {
+      list-style-type: disc;
+      padding-left: 1.5em;
+      margin: 0.25em 0 0.75em 0;
+    }
+    
+    .prose-chat li {
+      margin-bottom: 0.2em;
+      padding-left: 0.25em;
+      line-height: 1.5;
+    }
+    
+    .prose-chat p {
+      margin-bottom: 0.6em;
+      line-height: 1.5;
+    }
+    
+    .prose-chat .term {
+      color: var(--color-cinnabar);
+      font-weight: 600;
+    }
+    
+    .prose-chat .section-marker {
+      display: block;
+      margin-top: 1.75em;
+      margin-bottom: 0.5em;
+    }
+    
+    .prose-chat .list-item {
+      margin-left: 1em;
+      margin-bottom: 0.3em;
+      line-height: 1.5;
+    }
+    
+    .prose-chat ol {
+      list-style-type: decimal;
+      padding-left: 1.5em;
+      margin: 0.25em 0 0.75em 0;
+      counter-reset: item;
+    }
+    
+    .prose-chat ol > li {
+      counter-increment: item;
+      margin-bottom: 0.2em;
+    }
+    
+    /* Special handling for numbered items like "1. Therapy:" */
+    .prose-chat p strong:first-child {
+      color: var(--color-cinnabar);
+      font-weight: 600;
+      margin-right: 0.25em;
+      font-size: 1.1em;
+      display: block;
+      margin-top: 1.25em;
+      margin-bottom: 0.3em;
+    }
+    
+    /* Style for sections with numbers like "1. Therapy:" */
+    .prose-chat p strong:first-child:first-letter {
+      font-weight: 700;
+    }
+    
+    .prose-chat .bullet-item {
+      position: relative;
+    }
+    
+    .prose-chat .acronym {
+      font-weight: 500;
+    }
+    
+    .prose-chat .parenthetical {
+      color: var(--muted-foreground);
+      font-weight: normal;
+    }
+    
+    /* Fix spacing when elements are adjacent */
+    .prose-chat p + ul,
+    .prose-chat p + ol {
+      margin-top: 0.25em;
+    }
+    
+    /* First element in the message should have no top margin */
+    .prose-chat > *:first-child {
+      margin-top: 0 !important;
+    }
+    
+    /* Message overall line height for better readability */
+    .message-bubble-ai {
+      line-height: 1.5;
+    }
+    
+    /* Add subtle styling to the message bubble for better readability */
+    .message-bubble-ai {
+      padding: 1.25rem;
+    }
+  `;
+
   return (
     <div className="flex flex-col bg-[var(--background)] min-h-screen">
+      <style jsx>{chatFormattingStyles}</style>
       <Header />
       
       <main className="flex flex-col flex-grow pt-2 md:pt-12 pb-24 md:pb-32 relative">
@@ -302,7 +513,7 @@ export default function HiddenChat() {
                       message.content || ''
                     ) : (
                       <div 
-                        className="prose-sm md:prose-base prose-p:my-2 prose-strong:text-[var(--color-cinnabar)] prose-li:my-1"
+                        className="prose-chat"
                         dangerouslySetInnerHTML={{ 
                           __html: message.content 
                             ? formatMessageContent(message.content) 

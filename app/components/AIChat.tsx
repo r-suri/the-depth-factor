@@ -33,8 +33,8 @@ export default function AIChat() {
       // Add an empty assistant message immediately to show typing indicator
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
       
-      // Call our API
-      const response = await fetch('/api/together', {
+      // Call our API using Anthropic endpoint
+      const response = await fetch('/api/anthropic', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
