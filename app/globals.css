@@ -311,6 +311,25 @@ p {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Custom focus styles for textarea */
+.glass textarea:focus {
+  outline: none;
+}
+
+.glass:has(textarea:focus) {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* Custom focus styles for input */
+.glass input:focus {
+  outline: none;
+}
+
+.glass:has(input:focus) {
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* Message bubbles for chat */

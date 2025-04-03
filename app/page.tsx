@@ -35,7 +35,13 @@ export default function Home() {
 
   // Scroll to bottom of messages whenever messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      // Use a small timeout to ensure the DOM has updated
+      const timeout = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
   }, [messages]);
 
   // Auto-resize the textarea based on content
@@ -70,8 +76,23 @@ export default function Home() {
     setInput('');
     setIsLoading(true);
     
+    // Reset textarea height immediately
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+    }
+    
     try {
-      // Call our Together.ai API
+      // Add an empty assistant message immediately to show typing indicator
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // Call our Together.ai API with proper messages format
       const response = await fetch('/api/together', {
         method: 'POST',
         headers: {
@@ -92,16 +113,6 @@ export default function Home() {
       const decoder = new TextDecoder();
       let responseText = '';
       
-      // Add an empty assistant message
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: '',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-      
       if (reader) {
         while (true) {
           const { done, value } = await reader.read();
@@ -110,7 +121,7 @@ export default function Home() {
           const chunk = decoder.decode(value);
           responseText += chunk;
           
-          // Update the last message
+          // Update the last message with accumulated response
           setMessages(prev => {
             const updated = [...prev];
             updated[updated.length - 1] = {
@@ -136,15 +147,31 @@ export default function Home() {
     } catch (error) {
       console.error('Error:', error);
       
-      // Add error message
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'I apologize, but I encountered an error processing your request. Please try again.',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
+      // Add error message or update the last assistant message if it exists
+      setMessages(prev => {
+        const lastMessage = prev[prev.length - 1];
+        
+        // If the last message is an empty assistant message, update it
+        if (lastMessage && lastMessage.role === 'assistant' && !lastMessage.content) {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: 'I apologize, but I encountered an error processing your request. Please try again.'
+          };
+          return updated;
+        }
+        
+        // Otherwise add a new error message
+        return [
+          ...prev,
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: 'I apologize, but I encountered an error processing your request. Please try again.',
+            timestamp: new Date()
+          }
+        ];
+      });
     } finally {
       setIsLoading(false);
       
@@ -156,22 +183,19 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col bg-[var(--background)]">
+    <div className="flex flex-col bg-[var(--background)] min-h-screen">
       <Header />
       
-      <main className="min-h-screen flex flex-col pt-2 md:pt-8 pb-16 md:pb-28">
+      <main className="flex flex-col flex-grow pt-2 md:pt-12 pb-24 md:pb-32 relative">
         {/* Welcome Section - Only show when no messages */}
         {messages.length === 0 && (
           <div className={mounted ? "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center animate-fade-in" : "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center opacity-0"}>
             <div className="-mt-12 md:-mt-16">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-6 font-heading animate-gradient">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-12 md:mb-16 font-heading animate-gradient">
                 Your Personal Growth Assistant
               </h1>
-              <p className="text-sm md:text-xl mb-3 md:mb-12 text-[var(--muted-foreground)] max-w-2xl mx-auto">
-                Share what's on your mind, and I'll help guide you with insights rooted in depth psychology.
-              </p>
               
-              <div className="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-12">
+              <div className="grid grid-cols-3 gap-2 md:gap-4 mt-20 mb-3 md:mb-12">
                 <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all">
                   <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -220,7 +244,7 @@ export default function Home() {
         
         {/* Chat Messages */}
         {messages.length > 0 && (
-          <div className="flex-grow px-2 md:px-4 pb-4 pt-6 max-w-4xl mx-auto w-full overflow-y-auto">
+          <div className="flex-grow px-2 md:px-4 pb-28 md:pb-32 pt-6 max-w-4xl mx-auto w-full overflow-y-auto">
             <div className="flex flex-col space-y-4 md:space-y-6">
               {messages.map((message) => (
                 <div
@@ -268,9 +292,9 @@ export default function Home() {
         )}
         
         {/* Input Form */}
-        <div className="sticky bottom-0 w-full bg-[var(--background)] pt-2 pb-4 md:pb-8 shadow-up-sm mt-auto">
+        <div className="fixed bottom-0 left-0 right-0 w-full bg-[var(--background)] pt-6 pb-6 md:pb-8 shadow-up-sm">
           <div className="max-w-4xl mx-auto px-2 md:px-4">
-            <form onSubmit={handleSubmit} className="relative glass">
+            <form onSubmit={handleSubmit} className="relative glass overflow-hidden">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -278,7 +302,7 @@ export default function Home() {
                 onInput={handleTextareaInput}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter your concern or question..."
-                className="w-full px-3 md:px-4 py-2 md:py-3 pr-16 md:pr-24 rounded-lg bg-transparent border-0 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] text-[var(--foreground)] resize-none text-sm md:text-base"
+                className="w-full px-3 md:px-4 py-2 md:py-3 pr-16 md:pr-24 rounded-lg bg-transparent border-0 text-[var(--foreground)] resize-none text-sm md:text-base"
                 rows={1}
                 disabled={isLoading}
               />
