@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -11,6 +11,12 @@ export default function AIChat() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +30,9 @@ export default function AIChat() {
     setIsLoading(true);
 
     try {
+      // Add an empty assistant message immediately to show typing indicator
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      
       // Call our API
       const response = await fetch('/api/together', {
         method: 'POST',
@@ -36,7 +45,7 @@ export default function AIChat() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch response');
+        throw new Error(`Failed to fetch response: ${response.status}`);
       }
 
       // For streaming response
@@ -45,9 +54,6 @@ export default function AIChat() {
       let responseText = '';
 
       if (reader) {
-        // Add an empty assistant message
-        setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
-
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -55,23 +61,47 @@ export default function AIChat() {
           const chunk = decoder.decode(value);
           responseText += chunk;
           
-          // Update the last message
+          // Update the last message with accumulated response
           setMessages((prev) => {
             const updated = [...prev];
             updated[updated.length - 1] = {
               role: 'assistant',
-              content: responseText,
+              content: responseText.trim(),
             };
             return updated;
           });
         }
       }
+      
+      // If no response was received, show error
+      if (!responseText.trim()) {
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: 'Sorry, I did not receive a response. Please try again.',
+          };
+          return updated;
+        });
+      }
     } catch (error) {
       console.error('Error:', error);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'Sorry, there was an error processing your request.' },
-      ]);
+      setMessages((prev) => {
+        // If we already added an empty assistant message, update it
+        if (prev[prev.length - 1].role === 'assistant') {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: 'Sorry, there was an error processing your request.',
+          };
+          return updated;
+        }
+        // Otherwise add a new error message
+        return [
+          ...prev,
+          { role: 'assistant', content: 'Sorry, there was an error processing your request.' },
+        ];
+      });
     } finally {
       setIsLoading(false);
     }
@@ -98,15 +128,11 @@ export default function AIChat() {
                 message.role === 'user' ? 'bg-blue-100 ml-auto' : 'bg-gray-100'
               } max-w-[80%]`}
             >
-              <p>{message.content}</p>
+              <p>{message.content || (isLoading && message.role === 'assistant' ? 'Thinking...' : '')}</p>
             </div>
           ))
         )}
-        {isLoading && (
-          <div className="p-3 rounded-lg bg-gray-100 max-w-[80%]">
-            <p>Thinking...</p>
-          </div>
-        )}
+        <div ref={messagesEndRef} />
       </div>
 
       <form onSubmit={handleSubmit} className="flex space-x-2">

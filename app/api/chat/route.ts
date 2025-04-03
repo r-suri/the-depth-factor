@@ -1,21 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { together } from '../../lib/togetherai';
 import { streamText } from 'ai';
 import { CURRENT_MODEL, DEFAULT_CHAT_SETTINGS } from '../../config/ai';
 
+// This is a simpler implementation using the Vercel AI SDK's streaming helpers
 export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
     const model = CURRENT_MODEL.id;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json(
-        { error: 'Messages are required and must be an array' },
+      return new Response(
+        JSON.stringify({ error: 'Messages are required and must be an array' }),
         { status: 400 }
       );
     }
 
-    // Using the native fetch API directly to Together.ai for more control
+    // Using the native fetch API directly to Together.ai for reliability
     const response = await fetch('https://api.together.xyz/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -24,7 +25,10 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model,
-        messages,
+        messages: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
         temperature: DEFAULT_CHAT_SETTINGS.temperature,
         max_tokens: DEFAULT_CHAT_SETTINGS.max_tokens,
         stream: DEFAULT_CHAT_SETTINGS.stream,
@@ -78,9 +82,9 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in Together.ai API:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate completion' },
+    console.error('Error in chat API:', error);
+    return new Response(
+      JSON.stringify({ error: 'Failed to generate completion' }),
       { status: 500 }
     );
   }
