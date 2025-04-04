@@ -16,7 +16,7 @@ export function formatMessages(messages: any[]) {
   }));
 }
 
-// Helper for streaming responses
+// Helper for streaming responses with retry logic
 export async function createStreamableResponse(stream: AsyncIterable<any>) {
   // Create a transform stream to extract text from Anthropic's stream events
   const transformStream = new TransformStream({
@@ -55,4 +55,45 @@ export async function createStreamableResponse(stream: AsyncIterable<any>) {
       'Connection': 'keep-alive'
     },
   });
+}
+
+// Add retry functionality with exponential backoff
+export async function retryWithExponentialBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 5,
+  initialDelay: number = 1000, // Start with 1s delay
+  maxDelay: number = 30000 // Max 30s delay
+): Promise<T> {
+  let retries = 0;
+  let delay = initialDelay;
+
+  while (true) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      // Check if error is due to Anthropic overload (529)
+      const isOverloaded = error?.status === 529 || 
+                          error?.code === 529 || 
+                          error?.detail === "Overloaded" ||
+                          error?.message?.includes("529") ||
+                          error?.message?.includes("Overloaded");
+      
+      // If we've reached max retries or error is not overload-related, throw it
+      if (retries >= maxRetries || !isOverloaded) {
+        throw error;
+      }
+      
+      // Increment retry count
+      retries++;
+      
+      // Log the retry attempt
+      console.log(`Anthropic API overloaded, retrying (${retries}/${maxRetries}) in ${delay}ms...`);
+      
+      // Wait for the current delay
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      // Increase delay for next attempt, with jitter for distributed retries
+      delay = Math.min(delay * 2 * (1 + Math.random() * 0.2), maxDelay);
+    }
+  }
 } 

@@ -14,9 +14,9 @@ interface ModelConfig {
 
 // Current model in use - placeholder for Anthropic Claude
 export const CURRENT_MODEL: ModelConfig = {
-  id: 'claude-3-haiku-20240307',
+  id: 'claude-3-7-sonnet-latest',
   provider: 'anthropic',
-  displayName: 'Claude 3 Haiku',
+  displayName: 'Claude 3.7 Sonnet',
   contextWindow: 200000,
   maxOutputTokens: 4096,
   temperature: 0.7
@@ -37,6 +37,22 @@ export const AVAILABLE_MODELS: ModelConfig[] = [
     id: 'claude-3-sonnet-20240229',
     provider: 'anthropic',
     displayName: 'Claude 3 Sonnet',
+    contextWindow: 200000,
+    maxOutputTokens: 4096,
+    temperature: 0.7
+  },
+  {
+    id: 'claude-3-haiku-20240307',
+    provider: 'anthropic',
+    displayName: 'Claude 3 Haiku',
+    contextWindow: 200000,
+    maxOutputTokens: 4096,
+    temperature: 0.7
+  },
+  {
+    id: 'claude-3-7-sonnet-latest',
+    provider: 'anthropic',
+    displayName: 'Claude 3.7 Sonnet',
     contextWindow: 200000,
     maxOutputTokens: 4096,
     temperature: 0.7

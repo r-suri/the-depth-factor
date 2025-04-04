@@ -229,7 +229,10 @@ export default function HiddenChat() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch response');
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.error || errorData?.details || `Failed to fetch: ${response.status} ${response.statusText}`
+        );
       }
       
       // For streaming response
@@ -275,12 +278,20 @@ export default function HiddenChat() {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1];
         
+        // Determine if it's an overload error
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const isOverloaded = errorMessage.includes('529') || errorMessage.includes('Overloaded');
+        
+        const userFriendlyMessage = isOverloaded 
+          ? "I'm experiencing high demand right now. Please try again in a moment."
+          : "I apologize, but I encountered an error processing your request. Please try again.";
+        
         // If the last message is an empty assistant message, update it
         if (lastMessage && lastMessage.role === 'assistant' && !lastMessage.content) {
           const updated = [...prev];
           updated[updated.length - 1] = {
             ...updated[updated.length - 1],
-            content: 'I apologize, but I encountered an error processing your request. Please try again.'
+            content: userFriendlyMessage
           };
           return updated;
         }
@@ -291,7 +302,7 @@ export default function HiddenChat() {
           {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: 'I apologize, but I encountered an error processing your request. Please try again.',
+            content: userFriendlyMessage,
             timestamp: new Date()
           }
         ];

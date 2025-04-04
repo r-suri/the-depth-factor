@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { CURRENT_MODEL, DEFAULT_CHAT_SETTINGS } from '../../config/ai';
-import { anthropic, formatMessages, createStreamableResponse } from '../../lib/anthropic';
+import { anthropic, formatMessages, createStreamableResponse, retryWithExponentialBackoff } from '../../lib/anthropic';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,13 +17,15 @@ export async function POST(req: NextRequest) {
     // Format messages for Anthropic API using our helper
     const formattedMessages = formatMessages(messages);
 
-    // Create a streaming response
-    const stream = await anthropic.messages.create({
-      model: model,
-      messages: formattedMessages,
-      max_tokens: DEFAULT_CHAT_SETTINGS.max_tokens,
-      temperature: DEFAULT_CHAT_SETTINGS.temperature,
-      stream: true,
+    // Create a streaming response with retry logic
+    const stream = await retryWithExponentialBackoff(async () => {
+      return await anthropic.messages.create({
+        model: model,
+        messages: formattedMessages,
+        max_tokens: DEFAULT_CHAT_SETTINGS.max_tokens,
+        temperature: DEFAULT_CHAT_SETTINGS.temperature,
+        stream: true,
+      });
     });
 
     // Return streamable response using our helper
@@ -31,7 +33,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error in Anthropic API:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to generate completion' }),
+      JSON.stringify({ 
+        error: 'Failed to generate completion',
+        details: error instanceof Error ? error.message : String(error)
+      }),
       { status: 500 }
     );
   }
