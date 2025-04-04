@@ -436,7 +436,35 @@ export default function HiddenChat() {
     
     /* Add subtle styling to the message bubble for better readability */
     .message-bubble-ai {
-      padding: 1.25rem;
+      padding: 1rem;
+      font-size: 0.9rem;
+      overflow-wrap: break-word;
+    }
+    
+    @media screen and (min-width: 768px) {
+      .message-bubble-ai {
+        padding: 1.25rem;
+        font-size: 1rem;
+      }
+    }
+    
+    /* Additional mobile responsiveness styles */
+    @media screen and (max-width: 480px) {
+      .prose-chat h1 {
+        font-size: 1.3em;
+      }
+      
+      .prose-chat h2 {
+        font-size: 1.1em;
+      }
+      
+      .prose-chat h3 {
+        font-size: 1em;
+      }
+      
+      .prose-chat ul, .prose-chat ol {
+        padding-left: 1.25em;
+      }
     }
   `;
 
@@ -445,55 +473,55 @@ export default function HiddenChat() {
       <style jsx>{chatFormattingStyles}</style>
       <Header />
       
-      <main className="flex flex-col flex-grow pt-2 md:pt-12 pb-24 md:pb-32 relative">
+      <main className="flex flex-col flex-grow pt-2 md:pt-8 lg:pt-12 pb-24 md:pb-32 relative">
         {/* Welcome Section - Only show when no messages */}
         {messages.length === 0 && (
-          <div className={mounted ? "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center animate-fade-in" : "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center opacity-0"}>
-            <div className="-mt-12 md:-mt-16">
-              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-12 md:mb-16 font-heading animate-gradient">
+          <div className={mounted ? "flex-grow flex flex-col justify-center items-center px-4 sm:px-6 md:px-8 max-w-4xl mx-auto w-full text-center animate-fade-in" : "flex-grow flex flex-col justify-center items-center px-2 md:px-4 max-w-4xl mx-auto w-full text-center opacity-0"}>
+            <div className="-mt-8 sm:-mt-10 md:-mt-16">
+              <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold mb-8 sm:mb-10 md:mb-16 font-heading animate-gradient">
                 Your Personal Growth Assistant
               </h1>
               
-              <div className="grid grid-cols-3 gap-2 md:gap-4 mt-20 mb-3 md:mb-12">
-                <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all">
-                  <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 mt-10 sm:mt-16 md:mt-20 mb-3 md:mb-12">
+                <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all p-2 sm:p-3 md:p-4">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   </div>
-                  <h3 className="text-xs md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Personal Guidance</h3>
-                  <p className="text-center text-[10px] md:text-sm hidden md:block">
+                  <h3 className="text-[10px] xs:text-xs sm:text-sm md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Personal Guidance</h3>
+                  <p className="text-center text-[9px] sm:text-[10px] md:text-sm hidden sm:block">
                     Get personalized insights for your specific life challenges
                   </p>
                 </div>
                 
-                <div className="card-sm md:card group hover:border-[var(--color-verdigris)] transition-all">
-                  <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-verdigris)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="card-sm md:card group hover:border-[var(--color-verdigris)] transition-all p-2 sm:p-3 md:p-4">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 bg-[var(--color-verdigris)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-6 md:w-6 text-[var(--color-verdigris)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
-                  <h3 className="text-xs md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Depth Perspective</h3>
-                  <p className="text-center text-[10px] md:text-sm hidden md:block">
+                  <h3 className="text-[10px] xs:text-xs sm:text-sm md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Depth Perspective</h3>
+                  <p className="text-center text-[9px] sm:text-[10px] md:text-sm hidden sm:block">
                     Discover insights rooted in depth psychology and ancient wisdom
                   </p>
                 </div>
                 
-                <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all">
-                  <div className="w-8 h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="card-sm md:card group hover:border-[var(--color-cinnabar)] transition-all p-2 sm:p-3 md:p-4">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 bg-[var(--color-cinnabar)]/10 rounded-full flex items-center justify-center mb-1 md:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 md:h-6 md:w-6 text-[var(--color-cinnabar)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <h3 className="text-xs md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Practical Steps</h3>
-                  <p className="text-center text-[10px] md:text-sm hidden md:block">
+                  <h3 className="text-[10px] xs:text-xs sm:text-sm md:text-lg font-semibold mb-0.5 md:mb-2 text-center">Practical Steps</h3>
+                  <p className="text-center text-[9px] sm:text-[10px] md:text-sm hidden sm:block">
                     Get actionable guidance to move forward in your journey
                   </p>
                 </div>
               </div>
               
               <div className="text-center mb-2 md:mb-4 mt-2 md:mt-8 glass py-1.5 md:py-3 px-3 md:px-6 mx-auto inline-block rounded-full">
-                <p className="text-[var(--muted-foreground)] italic text-[10px] md:text-sm">
+                <p className="text-[var(--muted-foreground)] italic text-[9px] xs:text-[10px] sm:text-xs md:text-sm">
                   Try: "handling anxiety", "finding motivation", "relationships"
                 </p>
               </div>
@@ -503,8 +531,8 @@ export default function HiddenChat() {
         
         {/* Chat Messages */}
         {messages.length > 0 && (
-          <div className="flex-grow px-2 md:px-4 pb-28 md:pb-32 pt-6 max-w-4xl mx-auto w-full overflow-y-auto">
-            <div className="flex flex-col space-y-4 md:space-y-6">
+          <div className="flex-grow px-3 sm:px-4 md:px-6 pb-28 md:pb-32 pt-4 sm:pt-6 max-w-4xl mx-auto w-full overflow-y-auto">
+            <div className="flex flex-col space-y-3 sm:space-y-4 md:space-y-6">
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -513,12 +541,12 @@ export default function HiddenChat() {
                   } animate-fade-in`}
                 >
                   {message.role === 'assistant' && (
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-start mt-1 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-start mt-1 flex items-center justify-center text-white font-bold text-[10px] sm:text-xs">
                       DF
                     </div>
                   )}
                   <div
-                    className={`${message.role === 'user' ? 'message-bubble-user' : 'message-bubble-ai'} text-sm md:text-base max-w-[80%]`}
+                    className={`${message.role === 'user' ? 'message-bubble-user' : 'message-bubble-ai'} text-xs sm:text-sm md:text-base max-w-[75%] sm:max-w-[80%] lg:max-w-[85%]`}
                   >
                     {message.role === 'user' ? (
                       message.content || ''
@@ -534,8 +562,8 @@ export default function HiddenChat() {
                     )}
                   </div>
                   {message.role === 'user' && (
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-[var(--color-verdigris)] flex-shrink-0 ml-1 md:ml-2 self-end mb-1 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 md:h-4 md:w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-[var(--color-verdigris)] flex-shrink-0 ml-1 md:ml-2 self-end mb-1 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
@@ -546,7 +574,7 @@ export default function HiddenChat() {
               {/* Loading indicator */}
               {isLoading && !messages.some(m => m.role === 'assistant' && !m.content) && (
                 <div className="flex justify-start animate-fade-in">
-                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-start mt-1 flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)] flex-shrink-0 mr-1 md:mr-2 self-start mt-1 flex items-center justify-center text-white font-bold text-[10px] sm:text-xs">
                     DF
                   </div>
                   <div className="message-bubble-ai">
@@ -562,9 +590,9 @@ export default function HiddenChat() {
         )}
         
         {/* Input Form */}
-        <div className="fixed bottom-0 left-0 right-0 w-full bg-[var(--background)] pt-6 pb-6 md:pb-8 shadow-up-sm">
-          <div className="max-w-4xl mx-auto px-2 md:px-4">
-            <form onSubmit={handleSubmit} className="relative glass overflow-hidden">
+        <div className="fixed bottom-0 left-0 right-0 w-full bg-[var(--background)] pt-4 sm:pt-6 pb-4 sm:pb-6 md:pb-8 shadow-up-sm">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
+            <form onSubmit={handleSubmit} className="relative glass overflow-hidden rounded-lg">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -572,25 +600,26 @@ export default function HiddenChat() {
                 onInput={handleTextareaInput}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter your concern or question..."
-                className="w-full px-3 md:px-4 py-2 md:py-3 pr-16 md:pr-24 rounded-lg bg-transparent border-0 text-[var(--foreground)] resize-none text-sm md:text-base"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 pr-12 sm:pr-16 md:pr-24 rounded-lg bg-transparent border-0 text-[var(--foreground)] resize-none text-xs sm:text-sm md:text-base"
                 rows={1}
                 disabled={isLoading}
               />
-              <div className="absolute right-1 md:right-2 bottom-1 md:bottom-2">
+              <div className="absolute right-1 sm:right-1.5 md:right-2 bottom-1 sm:bottom-1.5 md:bottom-2">
                 <Button
                   type="submit"
                   variant="primary"
                   disabled={isLoading || !input.trim()}
-                  className="h-8 w-8 md:h-auto md:w-auto flex items-center justify-center"
+                  className="h-8 w-12 sm:h-8 sm:w-10 md:h-auto md:w-auto flex items-center justify-center"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
                   </svg>
                 </Button>
               </div>
             </form>
             
-            <div className="mt-1 md:mt-2 text-[10px] md:text-xs text-[var(--muted-foreground)] text-center">
+            <div className="mt-1 sm:mt-1.5 md:mt-2 text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs text-[var(--muted-foreground)] text-center">
               <Link href="/" className="underline hover:text-[var(--color-cinnabar)] transition-colors">
                 Visit our website
               </Link> to explore our content or learn more about The Depth Factor
@@ -599,7 +628,10 @@ export default function HiddenChat() {
         </div>
       </main>
       
-      <Footer />
+      {/* Hide Footer on mobile devices */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
     </div>
   );
 } 

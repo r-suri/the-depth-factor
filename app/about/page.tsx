@@ -58,7 +58,7 @@ export default function About() {
               </div>
               <div className="mt-6 text-center">
                 <Link href="https://www.youtube.com/@thedepthfactor" target="_blank">
-                  <Button variant="primary" size="medium">
+                  <Button variant="primary" size="medium" animation="pulse">
                     YouTube Channel
                   </Button>
                 </Link>
@@ -243,12 +243,12 @@ export default function About() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/">
-              <Button variant="secondary" size="large">
+              <Button variant="secondary" size="large" animation="shine">
                 Explore Content
               </Button>
             </Link>
             <Link href="https://www.youtube.com/@thedepthfactor" target="_blank">
-              <Button variant="secondary" size="large">
+              <Button variant="secondary" size="large" animation="bounce">
                 Subscribe on YouTube
               </Button>
             </Link>
@@ -256,6 +256,86 @@ export default function About() {
         </div>
       </section>
 
+      {/* Button Showcase Section - Only visible in development mode */}
+      {process.env.NODE_ENV === 'development' && (
+        <section className="py-16 container mx-auto px-4 bg-[var(--color-jet-dark)] rounded-lg mt-16 mb-16">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-8 text-center font-heading text-[var(--color-floral-white)]">
+              Button Showcase
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="p-6 bg-[var(--color-jet)] rounded-lg">
+                <h3 className="text-xl font-semibold mb-4 text-center border-b border-[var(--border)] pb-2">
+                  Primary Variant
+                </h3>
+                <div className="flex flex-col gap-4">
+                  <Button variant="primary" size="small" className="w-full">Small</Button>
+                  <Button variant="primary" size="medium" className="w-full">Medium</Button>
+                  <Button variant="primary" size="large" className="w-full">Large</Button>
+                </div>
+              </div>
+              
+              <div className="p-6 bg-[var(--color-jet)] rounded-lg">
+                <h3 className="text-xl font-semibold mb-4 text-center border-b border-[var(--border)] pb-2">
+                  Secondary Variant
+                </h3>
+                <div className="flex flex-col gap-4">
+                  <Button variant="secondary" size="small" className="w-full">Small</Button>
+                  <Button variant="secondary" size="medium" className="w-full">Medium</Button>
+                  <Button variant="secondary" size="large" className="w-full">Large</Button>
+                </div>
+              </div>
+              
+              <div className="p-6 bg-[var(--color-jet)] rounded-lg">
+                <h3 className="text-xl font-semibold mb-4 text-center border-b border-[var(--border)] pb-2">
+                  Outline Variant
+                </h3>
+                <div className="flex flex-col gap-4">
+                  <Button variant="outline" size="small" className="w-full">Small</Button>
+                  <Button variant="outline" size="medium" className="w-full">Medium</Button>
+                  <Button variant="outline" size="large" className="w-full">Large</Button>
+                </div>
+              </div>
+            </div>
+            
+            <h3 className="text-xl font-semibold mb-6 text-center font-heading text-[var(--color-floral-white)]">
+              Animation Effects
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-6 bg-[var(--color-jet)] rounded-lg">
+                <h4 className="text-lg font-semibold mb-4 text-center border-b border-[var(--border)] pb-2">
+                  Primary Animations
+                </h4>
+                <div className="flex flex-col gap-4">
+                  <Button variant="primary" size="medium" animation="pulse" className="w-full">Pulse Animation</Button>
+                  <Button variant="primary" size="medium" animation="bounce" className="w-full">Bounce Animation</Button>
+                  <Button variant="primary" size="medium" animation="shine" className="w-full">Shine Animation</Button>
+                </div>
+              </div>
+              
+              <div className="p-6 bg-[var(--color-jet)] rounded-lg">
+                <h4 className="text-lg font-semibold mb-4 text-center border-b border-[var(--border)] pb-2">
+                  Secondary Animations
+                </h4>
+                <div className="flex flex-col gap-4">
+                  <Button variant="secondary" size="medium" animation="pulse" className="w-full">Pulse Animation</Button>
+                  <Button variant="secondary" size="medium" animation="bounce" className="w-full">Bounce Animation</Button>
+                  <Button variant="secondary" size="medium" animation="shine" className="w-full">Shine Animation</Button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-8 p-4 bg-[var(--color-jet-darker)] rounded-lg border border-[var(--border)]">
+              <p className="text-sm text-[var(--muted-foreground)] text-center">
+                This showcase is only visible in development mode and helps designers test button variants and animations.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+      
       <Footer />
     </div>
   );

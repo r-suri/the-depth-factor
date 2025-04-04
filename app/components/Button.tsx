@@ -5,6 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'small' | 'medium' | 'large';
   fullWidth?: boolean;
   className?: string;
+  animation?: 'pulse' | 'bounce' | 'shine' | 'none';
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -12,17 +13,18 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'medium',
   fullWidth = false,
+  animation = 'none',
   className = '',
   ...props
 }) => {
-  // Base styles for all button variants
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2';
+  // Base styles for all button variants with improved transitions
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-300 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 relative overflow-hidden';
   
-  // Variant styles with enhanced contrast
+  // Enhanced variant styles with better hover effects
   const variantClasses = {
-    primary: 'bg-[var(--color-cinnabar)] text-white hover:bg-[var(--color-cinnabar-dark)] hover:-translate-y-0.5 shadow-md hover:shadow-lg focus:ring-[var(--color-cinnabar)]',
-    secondary: 'bg-[var(--color-verdigris)] text-white hover:bg-[var(--color-verdigris-dark)] hover:-translate-y-0.5 shadow-md hover:shadow-lg focus:ring-[var(--color-verdigris)]',
-    outline: 'border-2 border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:-translate-y-0.5 focus:ring-[var(--foreground)]',
+    primary: 'bg-[var(--color-cinnabar)] text-white hover:bg-[var(--color-cinnabar-dark)] hover:-translate-y-1 hover:scale-105 shadow-md hover:shadow-lg focus:ring-[var(--color-cinnabar)] active:translate-y-0 active:scale-95',
+    secondary: 'bg-[var(--color-verdigris)] text-white hover:bg-[var(--color-verdigris-dark)] hover:-translate-y-1 hover:scale-105 shadow-md hover:shadow-lg focus:ring-[var(--color-verdigris)] active:translate-y-0 active:scale-95',
+    outline: 'border-2 border-[var(--foreground)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:-translate-y-1 hover:scale-105 focus:ring-[var(--foreground)] active:translate-y-0 active:scale-95',
   };
   
   // Size styles
@@ -40,8 +42,16 @@ const Button: React.FC<ButtonProps> = ({
     ? 'opacity-70 cursor-not-allowed pointer-events-none'
     : '';
   
+  // Animation classes
+  const animationClasses = {
+    none: '',
+    pulse: 'hover:animate-pulse',
+    bounce: 'hover:animate-bounce',
+    shine: 'shine-effect', // Custom animation with pseudo-element
+  };
+
   // Combine all classes
-  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClasses} ${disabledClasses} ${className}`;
+  const buttonClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClasses} ${disabledClasses} ${animationClasses[animation]} ${className}`;
   
   return (
     <button
@@ -49,6 +59,11 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {children}
+      {animation === 'shine' && (
+        <span className="absolute inset-0 overflow-hidden rounded-full">
+          <span className="absolute -inset-[40%] top-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shine-animation"></span>
+        </span>
+      )}
     </button>
   );
 };

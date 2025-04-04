@@ -118,12 +118,12 @@ export default function Home() {
             
             <div className={mounted ? "flex flex-col sm:flex-row gap-5 justify-center mt-12 mb-16 animate-slide-up delay-800" : "flex flex-col sm:flex-row gap-5 justify-center mb-16 opacity-0"}>
               <Link href="https://www.youtube.com/@thedepthfactor" target="_blank">
-                <Button variant="primary" size="large">
+                <Button variant="primary" size="large" animation="shine">
                   Explore on Youtube
                 </Button>
               </Link>
               <Link href="#search-section">
-                <Button variant="secondary" size="large">
+                <Button variant="secondary" size="large" animation="pulse">
                   Find Content For You
                 </Button>
               </Link>
@@ -163,7 +163,7 @@ export default function Home() {
                 className="w-full px-6 py-4 rounded-full text-white text-lg bg-transparent border-0 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/70"
               />
               <div className="absolute right-2 top-2">
-                <Button type="submit" variant="secondary">
+                <Button type="submit" variant="secondary" animation="shine">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -312,30 +312,18 @@ export default function Home() {
                   value="false" 
                 />
                 <div className="mb-6">
-                  <label htmlFor="email" className="sr-only">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
+                  <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="Your email address" 
+                    required 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Your email address"
-                    className="w-full px-4 py-3 rounded-full text-[var(--foreground)] glass bg-transparent border border-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-cinnabar)]/50"
-                    required
+                    className="w-full rounded-md bg-white/5 border border-[var(--border)] focus:border-[var(--color-cinnabar)] focus:ring-2 focus:ring-[var(--color-cinnabar)] placeholder-[var(--muted-foreground)] p-4 text-[var(--foreground)]"
                   />
                 </div>
-                <input
-                  type="hidden"
-                  id="message"
-                  name="message"
-                  value="Newsletter signup"
-                />
-                {formError && (
-                  <div className="mb-4 text-[var(--color-cinnabar)]">
-                    {formError}
-                  </div>
-                )}
-                <Button variant="primary" size="large" fullWidth type="submit" disabled={isSubmitting}>
+                
+                <Button variant="primary" size="large" fullWidth type="submit" animation="shine" disabled={isSubmitting}>
                   {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </Button>
               </form>
