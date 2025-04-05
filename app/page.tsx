@@ -90,7 +90,7 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden">
+      <section className="relative py-32 overflow-hidden min-h-[450px] md:min-h-[500px]">
         {/* Background Image with overlay */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-jet-darker)]/90 to-[var(--color-jet-dark)]/80 z-10"></div>
@@ -108,15 +108,15 @@ export default function Home() {
         <div className="absolute bottom-1/4 left-[10%] accent-dot"></div>
         
         <div className="container mx-auto px-4 relative z-20">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto text-center min-h-[220px] flex flex-col justify-center">
             <h1 className={mounted ? "text-5xl md:text-6xl font-bold mb-12 animate-slide-up delay-400 tracking-tight leading-tight font-heading animate-gradient bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)]" : "text-5xl md:text-6xl font-bold mb-12 opacity-0 tracking-tight leading-tight font-heading"}>
               Inner world<span className="mx-4">➔</span>Outer world
             </h1>
-            <p className={mounted ? "text-xl md:text-2xl max-w-2xl mx-auto mb-16 animate-slide-up delay-600 text-[var(--muted-foreground)]" : "text-xl md:text-2xl max-w-2xl mx-auto mb-20 opacity-0"}>
+            <p className={mounted ? "text-xl md:text-2xl max-w-2xl mx-auto mb-16 animate-slide-up delay-600 text-[var(--muted-foreground)]" : "text-xl md:text-2xl max-w-2xl mx-auto mb-16 opacity-0"}>
               Dive Deeper into Your Life 
             </p>
             
-            <div className={mounted ? "flex flex-col sm:flex-row gap-5 justify-center mt-12 mb-16 animate-slide-up delay-800" : "flex flex-col sm:flex-row gap-5 justify-center mb-16 opacity-0"}>
+            <div className={mounted ? "flex flex-col sm:flex-row gap-5 justify-center mt-8 mb-16 animate-slide-up delay-800" : "flex flex-col sm:flex-row gap-5 justify-center mt-8 mb-16 opacity-0"}>
               <Link href="https://www.youtube.com/@thedepthfactor" target="_blank">
                 <Button variant="primary" size="large" animation="shine">
                   Explore on Youtube
@@ -162,7 +162,7 @@ export default function Home() {
                 placeholder="anxiety, motivation, relationships..."
                 className="w-full px-6 py-4 rounded-full text-white text-lg bg-transparent border-0 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-white/70"
               />
-              <div className="absolute right-2 top-2">
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <Button type="submit" variant="secondary" animation="shine">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
