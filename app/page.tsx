@@ -288,8 +288,8 @@ export default function Home() {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 font-heading animate-gradient bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)]">Inbox Insights</h2>
-            <p className="text-lg text-[var(--muted-foreground)] mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-10 font-heading animate-gradient bg-gradient-to-r from-[var(--color-cinnabar)] to-[var(--color-verdigris)]">Inbox Insights</h2>
+            <p className="text-lg text-[var(--muted-foreground)] mb-14">
               Bi-weekly reflections—straight to your inbox
             </p>
             
@@ -311,7 +311,7 @@ export default function Home() {
                   name="_redirect" 
                   value="false" 
                 />
-                <div className="mb-6">
+                <div className="mb-8">
                   <input 
                     type="email" 
                     name="email" 
